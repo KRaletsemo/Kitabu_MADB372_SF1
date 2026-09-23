@@ -44,7 +44,7 @@ enum class KitabuDestination(
     Home(route = "home", label = "Home", icon = Icons.Filled.Home),
 
     // AutoMirrored means the list icon flips automatically for right-to-left languages.
-    Catalog(route = "catalog", label = "Catalog", icon = Icons.AutoMirrored.Filled.List),
+    Catalogue(route = "catalogue", label = "Catalogue", icon = Icons.AutoMirrored.Filled.List),
 
     // A calendar icon fits Bookings, since every booking has a reservation date and a return deadline.
     Bookings(route = "bookings", label = "Bookings", icon = Icons.Filled.DateRange);
@@ -97,14 +97,14 @@ fun KitabuBottomBar(
 fun NavHostController.navigateToTab(destination: KitabuDestination) {
     navigate(destination.route) {
         // Pop back to the start tab so the back stack doesn't grow every time a tab is tapped.
-        // Without this, tapping Home -> Catalog -> Home -> Catalog would need 4 back presses to exit.
+
         popUpTo(graph.findStartDestination().id) {
-            // Remember the state (scroll position, etc.) of the tab we're leaving...
+            // Remember the state (scroll position, etc.) of the tab being left
             saveState = true
         }
-        // ...don't stack a second copy of a tab if the user taps the tab they are already on...
+        // don't stack a second copy of a tab if the user taps the tab they are already on
         launchSingleTop = true
-        // ...and restore the saved state when the user comes back to a tab.
+        // restore the saved state when the user comes back to a tab
         restoreState = true
     }
 }
@@ -126,10 +126,9 @@ fun KitabuNavHost(
         startDestination = KitabuDestination.startDestination.route,
         modifier = modifier
     ) {
-        // Each composable(route) { ... } block registers one destination in the graph.
-        // The screens themselves live in Home.kt, Catalogue.kt and Bookings.kt.
+        // Each composable(route) { ... } block registers one destination in the graph but the screens themselves live in Home.kt, Catalogue.kt and Bookings.kt.
         composable(KitabuDestination.Home.route) { HomeScreen() }
-        composable(KitabuDestination.Catalog.route) { CatalogScreen() }
+        composable(KitabuDestination.Catalogue.route) { CatalogueScreen() }
         composable(KitabuDestination.Bookings.route) { BookingsScreen() }
     }
 }

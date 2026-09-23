@@ -14,8 +14,8 @@ import androidx.compose.ui.Modifier
  * Placeholder for now: the full book grid and the reservation bottom sheet come in a later checklist item.
  */
 @Composable
-fun CatalogScreen(modifier: Modifier = Modifier) {
+fun CatalogueScreen(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "Catalog", style = MaterialTheme.typography.headlineMedium)
+        Text(text = "Catalogue", style = MaterialTheme.typography.headlineMedium)
     }
 }
