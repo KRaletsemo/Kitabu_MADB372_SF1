@@ -1,4 +1,4 @@
-package com.example.kitabusf1.ui.screens.home
+package com.example.kitabusf1.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

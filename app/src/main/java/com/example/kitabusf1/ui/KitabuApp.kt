@@ -7,8 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
-import com.example.kitabusf1.ui.navigation.KitabuBottomBar
-import com.example.kitabusf1.ui.navigation.KitabuNavHost
 import com.example.kitabusf1.ui.theme.KitabuSF1Theme
 
 /**
