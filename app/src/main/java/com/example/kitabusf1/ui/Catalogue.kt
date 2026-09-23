@@ -1,4 +1,4 @@
-package com.example.kitabusf1.ui.screens.bookings
+package com.example.kitabusf1.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,13 +9,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 /**
- * Bookings tab (dashboard of active rentals).
+ * Catalog tab (full browsing screen).
  *
- * Placeholder for now: the bookings list with Renew / Return / Cancel actions comes in a later checklist item.
+ * Placeholder for now: the full book grid and the reservation bottom sheet come in a later checklist item.
  */
 @Composable
-fun BookingsScreen(modifier: Modifier = Modifier) {
+fun CatalogueScreen(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "Bookings", style = MaterialTheme.typography.headlineMedium)
+        Text(text = "Catalogue", style = MaterialTheme.typography.headlineMedium)
     }
 }
