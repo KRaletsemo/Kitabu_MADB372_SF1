@@ -11,8 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridItemSpanScope
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -40,10 +44,15 @@ import com.example.kitabusf1.data.daysRemaining
 import com.example.kitabusf1.data.isOverdue
 import com.example.kitabusf1.data.matchesSearch
 
+private const val CATALOGUE_PREVIEW_SIZE = 6
+
+private val fullWidth: LazyGridItemSpanScope.() -> GridItemSpan = { GridItemSpan(maxLineSpan) }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onSeeAllBookings: () -> Unit,
+    onSeeAllCatalogue: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var query by rememberSaveable { mutableStateOf("") }
@@ -52,6 +61,10 @@ fun HomeScreen(
     val dueSoon = PlaceholderData.bookings
         .filter { it.status == BookingStatus.ACTIVE && it.book.matchesSearch(query) }
         .sortedBy { it.returnDeadline }
+
+    val cataloguePreview = PlaceholderData.books
+        .filter { it.matchesSearch(query) }
+        .take(CATALOGUE_PREVIEW_SIZE)
 
     Column(modifier = modifier.fillMaxSize()) {
         TopAppBar(
@@ -64,19 +77,21 @@ fun HomeScreen(
             windowInsets = WindowInsets(0)
         )
 
-        LazyColumn(
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            item {
+            item(span = fullWidth) {
                 SearchField(query = query, onQueryChange = { query = it })
             }
 
-            item {
+            item(span = fullWidth) {
                 SectionHeader(title = "Due soon", onSeeAll = onSeeAllBookings)
             }
-            item {
+            item(span = fullWidth) {
                 if (dueSoon.isEmpty()) {
                     EmptyMessage("Nothing due soon")
                 } else {
@@ -85,6 +100,17 @@ fun HomeScreen(
                             DueSoonCard(booking)
                         }
                     }
+                }
+            }
+
+            item(span = fullWidth) {
+                SectionHeader(title = "Browse catalogue", onSeeAll = onSeeAllCatalogue)
+            }
+            if (cataloguePreview.isEmpty()) {
+                item(span = fullWidth) { EmptyMessage("No books match your search") }
+            } else {
+                items(cataloguePreview, key = { it.id }) { book ->
+                    BookCard(book)
                 }
             }
         }
