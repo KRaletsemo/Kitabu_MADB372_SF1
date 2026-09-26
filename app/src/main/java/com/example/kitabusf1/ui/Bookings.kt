@@ -8,11 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
-/**
- * Bookings tab (dashboard of active rentals).
- *
- * Placeholder for now: the bookings list with Renew / Return / Cancel actions comes in a later checklist item.
- */
 @Composable
 fun BookingsScreen(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
