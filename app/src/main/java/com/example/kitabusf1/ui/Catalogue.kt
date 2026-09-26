@@ -8,11 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
-/**
- * Catalog tab (full browsing screen).
- *
- * Placeholder for now: the full book grid and the reservation bottom sheet come in a later checklist item.
- */
 @Composable
 fun CatalogueScreen(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
