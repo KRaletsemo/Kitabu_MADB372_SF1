@@ -100,7 +100,11 @@ fun KitabuNavHost(
         modifier = modifier
     ) {
         // Each composable(route) { ... } block registers one destination in the graph but the screens themselves live in Home.kt, Catalogue.kt and Bookings.kt.
-        composable(KitabuDestination.Home.route) { HomeScreen() }
+        composable(KitabuDestination.Home.route) {
+            HomeScreen(
+                onSeeAllBookings = { navController.navigateToTab(KitabuDestination.Bookings) }
+            )
+        }
         composable(KitabuDestination.Catalogue.route) { CatalogueScreen() }
         composable(KitabuDestination.Bookings.route) { BookingsScreen() }
     }
