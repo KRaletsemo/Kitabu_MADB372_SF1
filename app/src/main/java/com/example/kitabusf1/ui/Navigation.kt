@@ -19,22 +19,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 
-// This file holds everything to do with moving between screens:
-//   1. KitabuDestination - the list of tabs
-//   2. KitabuBottomBar   - the bar the user taps
-//   3. KitabuNavHost     - the container that shows the screen for the selected tab
+// This file holds all navigation logic, cleaner format
+
 
 /**
  * The three top-level tabs in the bottom navigation bar.
  *
- * Why an enum? The set of tabs is fixed and known at compile time, so an enum gives us:
+ * Enum is used so the set of tabs is fixed and known at compile time, it gives:
  *  - one single place that defines every tab (route + label + icon stay together),
- *  - `entries` to loop over when drawing the bottom bar, so adding a tab later is a one-line change,
- *  - type safety: code refers to `KitabuDestination.Home`, not a raw "home" string that could be misspelled.
- *
- * @property route the unique string key Navigation Compose uses to identify this screen in the NavHost.
- * @property label the text shown under the icon in the bottom bar.
- * @property icon the Material icon shown in the bottom bar.
+ *  - `entries` to loop over when drawing the bottom bar, so adding a tab later is a one-line change thus making it easy to expand,
+ *  - type safety: code refers to `KitabuDestination.Home`, not a raw "home" string that could be misspelled so you always know exactly where its going.
  */
 enum class KitabuDestination(
     val route: String,
@@ -43,41 +37,32 @@ enum class KitabuDestination(
 ) {
     Home(route = "home", label = "Home", icon = Icons.Filled.Home),
 
-    // AutoMirrored means the list icon flips automatically for right-to-left languages.
+
     Catalogue(route = "catalogue", label = "Catalogue", icon = Icons.AutoMirrored.Filled.List),
 
-    // A calendar icon fits Bookings, since every booking has a reservation date and a return deadline.
+    // A calendar icon
     Bookings(route = "bookings", label = "Bookings", icon = Icons.Filled.DateRange);
 
     companion object {
-        /** The tab the app opens on: Home is the landing screen in the chosen layout. */
+        // The tab the app opens on: Home is the landing screen
         val startDestination = Home
     }
 }
 
-/**
- * Material 3 bottom navigation bar with one item per [KitabuDestination].
- *
- * It takes the [NavHostController] as a parameter instead of creating its own, because the bar
- * and the NavHost must share the *same* controller: the bar tells it where to go, and the
- * NavHost reacts by swapping the visible screen.
- */
 @Composable
 fun KitabuBottomBar(
     navController: NavHostController,
     modifier: Modifier = Modifier
 ) {
-    // currentBackStackEntryAsState() turns the controller's back stack into Compose State.
-    // Whenever the user navigates, this value changes and the bar recomposes, so the
-    // highlighted (selected) tab always matches the screen actually on display.
+    // currentBackStackEntryAsState() turns the controller's back stack into Compose State,
+    // this means highlighted (selected) tab always matches the screen actually on display.
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
     NavigationBar(modifier = modifier) {
         KitabuDestination.entries.forEach { destination ->
-            // `hierarchy` walks up from the current screen through its parent graphs.
-            // Checking the whole hierarchy (not just the exact route) keeps the tab selected
-            // later on, if we add nested screens inside a tab (e.g. a book detail under Catalog).
+
             val selected = currentDestination?.hierarchy?.any { it.route == destination.route } == true
 
             NavigationBarItem(
@@ -90,10 +75,6 @@ fun KitabuBottomBar(
     }
 }
 
-/**
- * Standard "switch bottom tab" navigation. It is an extension function so other code (e.g. the
- * "See all" links on the Home screen later) can jump to a tab with exactly the same behaviour.
- */
 fun NavHostController.navigateToTab(destination: KitabuDestination) {
     navigate(destination.route) {
         // Pop back to the start tab so the back stack doesn't grow every time a tab is tapped.
@@ -108,14 +89,6 @@ fun NavHostController.navigateToTab(destination: KitabuDestination) {
         restoreState = true
     }
 }
-
-/**
- * The navigation graph: a map from each route string to the composable screen it shows.
- *
- * NavHost is a container that displays whichever screen matches the controller's current route.
- * This is what makes the app "single activity": we never start a new Activity to change screens,
- * we just tell the NavController to show a different composable inside this one host.
- */
 @Composable
 fun KitabuNavHost(
     navController: NavHostController,
