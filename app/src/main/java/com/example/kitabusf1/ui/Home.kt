@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.dp
 import com.example.kitabusf1.data.Booking
 import com.example.kitabusf1.data.BookingStatus
 import com.example.kitabusf1.data.PlaceholderData
-import com.example.kitabusf1.data.daysRemaining
 import com.example.kitabusf1.data.isOverdue
 import com.example.kitabusf1.data.matchesSearch
 
@@ -155,12 +154,6 @@ private fun DueSoonCard(booking: Booking, modifier: Modifier = Modifier) {
             )
         }
     }
-}
-
-private fun dueLabel(booking: Booking): String {
-    if (booking.isOverdue()) return "Overdue"
-    val days = booking.daysRemaining()
-    return if (days == 1) "1 day left" else "$days days left"
 }
 
 @Composable
