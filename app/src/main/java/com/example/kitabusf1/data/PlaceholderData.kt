@@ -23,6 +23,7 @@ data class Booking(
 )
 
 private const val DAY_MS = 24 * 60 * 60 * 1000L
+private const val RENEW_DAYS = 7 //renewal days is 7
 
 fun Book.matchesSearch(query: String): Boolean {
     val q = query.trim()
@@ -81,4 +82,49 @@ object PlaceholderData {
             )
         )
     }
+
+    //Works like reserve booking: Finds book position, safety checks it for Active book then when passed, makes the renewal and puts it back on screen to be viewed
+    fun renewBooking(booking: Booking): Booking? {
+        val index = bookings.indexOfFirst { it.id == booking.id }
+        if (index == -1 || bookings[index].status != BookingStatus.ACTIVE) return null
+
+        val renewed = bookings[index].copy (
+            returnDeadline = bookings[index].returnDeadline + RENEW_DAYS * DAY_MS
+        )
+        bookings[index] = renewed
+        return renewed
+    }
+
+    fun returnBooking(booking: Booking): Boolean {
+        val index = bookings.indexOfFirst { it.id == booking.id }
+        if (index == -1 || bookings[index].status != BookingStatus.ACTIVE) return false
+
+        bookings[index] = bookings[index].copy(status = BookingStatus.RETURNED)
+        makeAvailable(booking.book.id)
+        return true
+    }
+    //Only works on Pending books
+    fun cancelBooking(booking: Booking): Boolean {
+        val index = bookings.indexOfFirst { it.id == booking.id }
+        if (index == -1 || bookings[index].status != BookingStatus.PENDING) return false
+
+        bookings.removeAt(index)
+        makeAvailable(booking.book.id)
+        return true
+    }
+    //Function for collecting the book
+    fun collectBooking(booking: Booking): Boolean {
+        val index = bookings.indexOfFirst { it.id == booking.id }
+        if (index == -1 || bookings[index].status != BookingStatus.PENDING) return false
+
+        bookings[index] = bookings[index].copy(status = BookingStatus.ACTIVE)
+        return true
+    }
+
+    //frees the book from any occupied status
+    private fun makeAvailable(bookId: Int) {
+        val index = books.indexOfFirst { it.id == bookId }
+        if (index != -1) books[index] = books[index].copy(isAvailable = true)
+    }
+
 }
