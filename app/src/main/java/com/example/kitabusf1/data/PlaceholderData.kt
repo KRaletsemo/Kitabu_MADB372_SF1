@@ -112,6 +112,14 @@ object PlaceholderData {
         makeAvailable(booking.book.id)
         return true
     }
+    //Function for collecting the book
+    fun collectBooking(booking: Booking): Boolean {
+        val index = bookings.indexOfFirst { it.id == booking.id }
+        if (index == -1 || bookings[index].status != BookingStatus.PENDING) return false
+
+        bookings[index] = bookings[index].copy(status = BookingStatus.ACTIVE)
+        return true
+    }
 
     //frees the book from any occupied status
     private fun makeAvailable(bookId: Int) {

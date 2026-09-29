@@ -98,7 +98,12 @@ fun BookingsScreen(modifier: Modifier = Modifier) {
                                 }
                             },
                             onReturn = { bookingToReturn = booking },
-                            onCancel = { bookingToCancel = booking }
+                            onCancel = { bookingToCancel = booking },
+                            onCollect = {
+                                if (PlaceholderData.collectBooking(booking)) {
+                                    showMessage("Collected ${booking.book.title}")
+                                }
+                            }
                         )
 
                     }
@@ -150,6 +155,7 @@ fun BookingCard(
     onRenew: () -> Unit,
     onReturn: () -> Unit,
     onCancel: () -> Unit,
+    onCollect: () -> Unit,
     modifier: Modifier = Modifier
 ){
     Card(modifier = modifier.fillMaxWidth()) {
@@ -198,6 +204,10 @@ fun BookingCard(
                 if (booking.status == BookingStatus.ACTIVE) {
                     OutlinedButton(onClick = onRenew) { Text("Renew") } //clicking this will renew the book, thus adding days
                     Button(onClick = onReturn) { Text("Return") }
+                }
+
+                if (booking.status == BookingStatus.PENDING) { //Clicking this will show the book as collected
+                    Button(onClick = onCollect) { Text("Collected") }
                 }
             }
         }
