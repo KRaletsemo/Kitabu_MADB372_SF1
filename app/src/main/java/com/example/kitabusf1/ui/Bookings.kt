@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -23,10 +25,14 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -49,6 +55,13 @@ fun BookingsScreen(modifier: Modifier = Modifier) {
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    //Holds a coroutine
+    val showMessage: (String) -> Unit = { text ->
+        scope.launch { snackbarHostState.showSnackbar(text) }
+    }
+
+    var bookingToReturn by remember { mutableStateOf<Booking?>(null) }
+    var bookingToCancel by remember { mutableStateOf<Booking?>(null) }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -79,13 +92,13 @@ fun BookingsScreen(modifier: Modifier = Modifier) {
                             onRenew = {
                                 val renewed = PlaceholderData.renewBooking(booking)
                                 if (renewed != null) {
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            "Renewed ${renewed.book.title} until ${formatDate(renewed.returnDeadline)}"
-                                        )
-                                    }
+                                    showMessage(
+                                        "Renewed ${renewed.book.title} until ${formatDate(renewed.returnDeadline)}"
+                                    )
                                 }
-                            }
+                            },
+                            onReturn = { bookingToReturn = booking },
+                            onCancel = { bookingToCancel = booking }
                         )
 
                     }
@@ -98,6 +111,36 @@ fun BookingsScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
+
+    bookingToReturn?.let { booking ->
+        ConfirmDialog(
+            title = "Return book?",
+            message = "Return ${booking.book.title}? It will become available for others to reserve.",
+            confirmLabel = "Return",
+            onConfirm = {
+                bookingToReturn = null
+                if (PlaceholderData.returnBooking(booking)) {
+                    showMessage("Returned ${booking.book.title}")
+                }
+            },
+            onDismiss = { bookingToReturn = null }
+        )
+    }
+
+    bookingToCancel?.let { booking ->
+        ConfirmDialog(
+            title = "Cancel booking?",
+            message = "Cancel your reservation for ${booking.book.title}?",
+            confirmLabel = "Cancel booking",
+            onConfirm = {
+                bookingToCancel = null
+                if (PlaceholderData.cancelBooking(booking)) {
+                    showMessage("Cancelled booking for ${booking.book.title}")
+                }
+            },
+            onDismiss = { bookingToCancel = null }
+        )
+    }
 }
 
 //The cards for the books
@@ -105,6 +148,8 @@ fun BookingsScreen(modifier: Modifier = Modifier) {
 fun BookingCard(
     booking: Booking,
     onRenew: () -> Unit,
+    onReturn: () -> Unit,
+    onCancel: () -> Unit,
     modifier: Modifier = Modifier
 ){
     Card(modifier = modifier.fillMaxWidth()) {
@@ -145,12 +190,39 @@ fun BookingCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
             ) {
+                TextButton(
+                    onClick = onCancel,
+                    enabled = booking.status == BookingStatus.PENDING
+                ) { Text("Cancel") }
+
                 if (booking.status == BookingStatus.ACTIVE) {
                     OutlinedButton(onClick = onRenew) { Text("Renew") } //clicking this will renew the book, thus adding days
+                    Button(onClick = onReturn) { Text("Return") }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun ConfirmDialog(
+    title: String,
+    message: String,
+    confirmLabel: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = { Text(message) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) { Text(confirmLabel) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Go back") }
+        }
+    )
 }
 
 //Tags to show the cards status
