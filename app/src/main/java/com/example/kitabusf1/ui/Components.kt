@@ -27,6 +27,9 @@ import androidx.compose.ui.unit.dp
 import com.example.kitabusf1.data.Book
 import com.example.kitabusf1.ui.theme.AvailableGreen
 import com.example.kitabusf1.ui.theme.BorrowedOrange
+import com.example.kitabusf1.data.Booking
+import com.example.kitabusf1.data.daysRemaining
+import com.example.kitabusf1.data.isOverdue
 
 // Components.kt will hold all reusable parts/ parts that will be used across all screens. This means simply calling the part makes code cleaner
 
@@ -126,5 +129,11 @@ fun CategoryTag(category: String, modifier: Modifier = Modifier) {
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
         )
     }
+}
+
+fun dueLabel(booking: Booking): String {
+    if (booking.isOverdue()) return "Overdue"
+    val days = booking.daysRemaining()
+    return if (days == 1) "1 day left" else "$days days left"
 }
 
