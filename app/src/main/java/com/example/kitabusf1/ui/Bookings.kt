@@ -1,6 +1,5 @@
 package com.example.kitabusf1.ui
 
-import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,10 +18,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -30,51 +34,79 @@ import com.example.kitabusf1.data.Booking
 import com.example.kitabusf1.data.BookingStatus
 import com.example.kitabusf1.data.PlaceholderData
 import com.example.kitabusf1.data.isOverdue
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 
-@kotlin.OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookingsScreen(modifier: Modifier = Modifier) {
     val bookings = PlaceholderData.bookings
         .filter { it.status != BookingStatus.RETURNED } //keeps note of active and pending books
         .sortedBy { it.returnDeadline }//earliest deadline sorted first
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(
-            title = {Text("My Bookings")},
-            windowInsets = WindowInsets(0)
-        )
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-        if (bookings.isEmpty()) {
-            Text(
-                text = "You have no bookings",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(16.dp)
-
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            TopAppBar(
+                title = {Text("My Bookings")},
+                windowInsets = WindowInsets(0)
             )
 
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // makes one card per booking
-                items(bookings, key = { it.id }) { booking ->
-                    BookingCard(booking)
+            if (bookings.isEmpty()) {
+                Text(
+                    text = "You have no bookings",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(16.dp)
 
+                )
+
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // makes one card per booking
+                    items(bookings, key = { it.id }) { booking ->
+                        BookingCard(
+                            booking = booking,
+                            onRenew = {
+                                val renewed = PlaceholderData.renewBooking(booking)
+                                if (renewed != null) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            "Renewed ${renewed.book.title} until ${formatDate(renewed.returnDeadline)}"
+                                        )
+                                    }
+                                }
+                            }
+                        )
+
+                    }
                 }
             }
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 
+//The cards for the books
 @Composable
-fun BookingCard(booking: Booking, modifier: Modifier = Modifier){
+fun BookingCard(
+    booking: Booking,
+    onRenew: () -> Unit,
+    modifier: Modifier = Modifier
+){
     Card(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -82,7 +114,7 @@ fun BookingCard(booking: Booking, modifier: Modifier = Modifier){
                     Text(text = booking.book.title, style = MaterialTheme.typography.titleMedium)
                     Text(
                         text = booking.book.author,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -107,10 +139,21 @@ fun BookingCard(booking: Booking, modifier: Modifier = Modifier){
                 color = if (booking.isOverdue()) MaterialTheme.colorScheme.error
                 else MaterialTheme.colorScheme.primary
             )
+
+            Spacer(Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+            ) {
+                if (booking.status == BookingStatus.ACTIVE) {
+                    OutlinedButton(onClick = onRenew) { Text("Renew") } //clicking this will renew the book, thus adding days
+                }
+            }
         }
     }
 }
 
+//Tags to show the cards status
 @Composable
 private fun StatusTag(status: BookingStatus) {
     val isActive = status == BookingStatus.ACTIVE

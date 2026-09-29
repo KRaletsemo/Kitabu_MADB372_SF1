@@ -23,6 +23,7 @@ data class Booking(
 )
 
 private const val DAY_MS = 24 * 60 * 60 * 1000L
+private const val RENEW_DAYS = 7 //renewal days is 7
 
 fun Book.matchesSearch(query: String): Boolean {
     val q = query.trim()
@@ -81,4 +82,17 @@ object PlaceholderData {
             )
         )
     }
+
+    //Works like reserve booking: Finds book position, safety checks it for Active book then when passed, makes the renewal and puts it back on screen to be viewed
+    fun renewBooking(booking: Booking): Booking? {
+        val index = bookings.indexOfFirst { it.id == booking.id }
+        if (index == -1 || bookings[index].status != BookingStatus.ACTIVE) return null
+
+        val renewed = bookings[index].copy (
+            returnDeadline = bookings[index].returnDeadline + RENEW_DAYS * DAY_MS
+        )
+        bookings[index] = renewed
+        return renewed
+    }
+
 }
