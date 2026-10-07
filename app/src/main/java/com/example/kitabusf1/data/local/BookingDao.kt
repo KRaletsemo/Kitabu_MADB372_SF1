@@ -4,13 +4,12 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
-import com.example.kitabusf1.data.Booking
 import com.example.kitabusf1.data.BookingStatus
 import kotlinx.coroutines.flow.Flow
 
 //DAO - Data Access Object
 @Dao
-interface BookingDAO {
+interface BookingDao {
 
     @Insert
     suspend fun insertBooking(booking: BookingEntity): Long
