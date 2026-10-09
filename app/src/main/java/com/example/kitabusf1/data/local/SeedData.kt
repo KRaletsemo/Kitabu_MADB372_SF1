@@ -1,6 +1,5 @@
 package com.example.kitabusf1.data.local
 
-import android.adservices.adid.AdId
 import com.example.kitabusf1.data.BookingStatus
 
 //Seed Data: Holds starting Data
