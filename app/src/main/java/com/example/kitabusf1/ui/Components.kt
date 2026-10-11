@@ -24,12 +24,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.kitabusf1.data.Book
+import com.example.kitabusf1.domain.Book
 import com.example.kitabusf1.ui.theme.AvailableGreen
 import com.example.kitabusf1.ui.theme.BorrowedOrange
-import com.example.kitabusf1.data.Booking
-import com.example.kitabusf1.data.daysRemaining
-import com.example.kitabusf1.data.isOverdue
+import com.example.kitabusf1.domain.Booking
+import com.example.kitabusf1.domain.daysRemaining
+import com.example.kitabusf1.domain.isOverdue
 
 // Components.kt will hold all reusable parts/ parts that will be used across all screens. This means simply calling the part makes code cleaner
 
