@@ -3,7 +3,7 @@ package com.example.kitabusf1.data.local
 //This kt file will be used to help convert any needed data types to aid the Database receiving said information
 
 import androidx.room.TypeConverter
-import com.example.kitabusf1.data.BookingStatus
+import com.example.kitabusf1.domain.BookingStatus
 
 class Converters {
 

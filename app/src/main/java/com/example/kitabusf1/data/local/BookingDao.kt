@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
-import com.example.kitabusf1.data.BookingStatus
+import com.example.kitabusf1.domain.BookingStatus
 import kotlinx.coroutines.flow.Flow
 
 //DAO - Data Access Object

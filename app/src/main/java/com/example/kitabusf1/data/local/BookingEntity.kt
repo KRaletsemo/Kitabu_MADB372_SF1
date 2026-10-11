@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.kitabusf1.data.BookingStatus
+import com.example.kitabusf1.domain.BookingStatus
 
 @Entity(
     tableName = "bookings",

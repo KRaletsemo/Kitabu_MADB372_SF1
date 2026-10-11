@@ -28,19 +28,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.kitabusf1.data.Booking
-import com.example.kitabusf1.data.BookingStatus
-import com.example.kitabusf1.data.PlaceholderData
-import com.example.kitabusf1.data.isOverdue
-import kotlinx.coroutines.launch
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.kitabusf1.di.AppViewModelProvider
+import com.example.kitabusf1.domain.Booking
+import com.example.kitabusf1.domain.BookingStatus
+import com.example.kitabusf1.domain.isOverdue
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -48,16 +49,19 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookingsScreen(modifier: Modifier = Modifier) {
-    val bookings = PlaceholderData.bookings
-        .filter { it.status != BookingStatus.RETURNED } //keeps note of active and pending books
-        .sortedBy { it.returnDeadline }//earliest deadline sorted first
+fun BookingsScreen(
+    modifier: Modifier = Modifier,
+    viewModel: BookingsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val bookings = uiState.bookings
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    //Holds a coroutine
-    val showMessage: (String) -> Unit = { text ->
-        scope.launch { snackbarHostState.showSnackbar(text) }
+
+    LaunchedEffect(Unit) {
+        viewModel.messages.collect { message ->
+            snackbarHostState.showSnackbar(message)
+        }
     }
 
     var bookingToReturn by remember { mutableStateOf<Booking?>(null) }
@@ -70,7 +74,7 @@ fun BookingsScreen(modifier: Modifier = Modifier) {
                 windowInsets = WindowInsets(0)
             )
 
-            if (bookings.isEmpty()) {
+            if (!uiState.isLoading && bookings.isEmpty()) {
                 Text(
                     text = "You have no bookings",
                     style = MaterialTheme.typography.bodyMedium,
@@ -79,7 +83,7 @@ fun BookingsScreen(modifier: Modifier = Modifier) {
 
                 )
 
-            } else {
+            } else if (bookings.isNotEmpty()) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
@@ -89,21 +93,10 @@ fun BookingsScreen(modifier: Modifier = Modifier) {
                     items(bookings, key = { it.id }) { booking ->
                         BookingCard(
                             booking = booking,
-                            onRenew = {
-                                val renewed = PlaceholderData.renewBooking(booking)
-                                if (renewed != null) {
-                                    showMessage(
-                                        "Renewed ${renewed.book.title} until ${formatDate(renewed.returnDeadline)}"
-                                    )
-                                }
-                            },
+                            onRenew = { viewModel.renewBooking(booking) },
                             onReturn = { bookingToReturn = booking },
                             onCancel = { bookingToCancel = booking },
-                            onCollect = {
-                                if (PlaceholderData.collectBooking(booking)) {
-                                    showMessage("Collected ${booking.book.title}")
-                                }
-                            }
+                            onCollect = { viewModel.collectBooking(booking) }
                         )
 
                     }
@@ -124,9 +117,7 @@ fun BookingsScreen(modifier: Modifier = Modifier) {
             confirmLabel = "Return",
             onConfirm = {
                 bookingToReturn = null
-                if (PlaceholderData.returnBooking(booking)) {
-                    showMessage("Returned ${booking.book.title}")
-                }
+                viewModel.returnBooking(booking)
             },
             onDismiss = { bookingToReturn = null }
         )
@@ -139,9 +130,7 @@ fun BookingsScreen(modifier: Modifier = Modifier) {
             confirmLabel = "Cancel booking",
             onConfirm = {
                 bookingToCancel = null
-                if (PlaceholderData.cancelBooking(booking)) {
-                    showMessage("Cancelled booking for ${booking.book.title}")
-                }
+                viewModel.cancelBooking(booking)
             },
             onDismiss = { bookingToCancel = null }
         )
@@ -214,6 +203,7 @@ fun BookingCard(
     }
 }
 
+//Confirmation text
 @Composable
 private fun ConfirmDialog(
     title: String,
@@ -254,5 +244,5 @@ private fun StatusTag(status: BookingStatus) {
     }
 }
 
-private fun formatDate(millis: Long): String =
+fun formatDate(millis: Long): String =
     SimpleDateFormat("d MMM yyyy", Locale.getDefault()).format(Date(millis))

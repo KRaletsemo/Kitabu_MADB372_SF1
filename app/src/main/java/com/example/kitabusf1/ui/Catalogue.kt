@@ -26,11 +26,11 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -38,25 +38,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.example.kitabusf1.data.Book
-import com.example.kitabusf1.data.PlaceholderData
-import com.example.kitabusf1.data.matchesSearch
-import kotlinx.coroutines.launch
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.kitabusf1.di.AppViewModelProvider
+import com.example.kitabusf1.domain.Book
 
 private val RENTAL_OPTIONS = listOf(7, 14, 21)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 
-fun CatalogueScreen(modifier: Modifier = Modifier) {
-    //this query is used so that it only belongs to this screen
-    var query by rememberSaveable { mutableStateOf("") } //used to keep text even when phone is rotated
-
-    val books = PlaceholderData.books.filter { it.matchesSearch(query) } //search function
+fun CatalogueScreen(
+    modifier: Modifier = Modifier,
+    viewModel: CatalogueViewModel = viewModel(factory = AppViewModelProvider.Factory)
+) {
+    val query = viewModel.query
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val books = uiState.books
 
     var selectedBook by remember { mutableStateOf<Book?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        viewModel.messages.collect { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         //Column used to stack the top bar and then the Search bar
@@ -69,12 +76,12 @@ fun CatalogueScreen(modifier: Modifier = Modifier) {
 
             SearchField(
                 query = query,
-                onQueryChange = { query = it },
+                onQueryChange = viewModel::onQueryChange,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
             //book searching logic
-            if (books.isEmpty()){ //used to show message of book not being there, better than empty screen
+            if (!uiState.isLoading && books.isEmpty()){ //used to show message of book not being there, better than empty screen
                 Text(
                     text = "No books match your search",
                     style = MaterialTheme.typography.bodyMedium,
@@ -82,7 +89,7 @@ fun CatalogueScreen(modifier: Modifier = Modifier) {
                     modifier = Modifier.padding(16.dp)
                 )
 
-            } else {
+            } else if (books.isNotEmpty()) {
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = 160.dp), //responsive grid, good for adding more if needed
                     modifier = Modifier.fillMaxSize(),
@@ -117,11 +124,8 @@ fun CatalogueScreen(modifier: Modifier = Modifier) {
             book = book,
             onDismiss = { selectedBook = null },
             onReserve = { days ->
-                PlaceholderData.reserveBook(book, days)
+                viewModel.reserveBook(book, days)
                 selectedBook = null
-                scope.launch {
-                    snackbarHostState.showSnackbar("Reserved ${book.title} for $days days")
-                }
             }
         )
     }
