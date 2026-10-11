@@ -31,7 +31,7 @@ class HomeViewModel(
 ) : ViewModel() {
 
     var query by mutableStateOf("")
-        private set
+        private set //This is used to make sure that the screen can read the query but only the ViewModel can change it
 
     private val queryFlow = snapshotFlow { query }
 
