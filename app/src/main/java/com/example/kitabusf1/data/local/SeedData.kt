@@ -1,6 +1,6 @@
 package com.example.kitabusf1.data.local
 
-import com.example.kitabusf1.data.BookingStatus
+import com.example.kitabusf1.domain.BookingStatus
 
 //Seed Data: Holds starting Data
 private const val DAY_MS = 24 * 60 * 60 * 1000L

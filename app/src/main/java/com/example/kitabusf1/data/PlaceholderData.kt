@@ -1,41 +1,11 @@
 package com.example.kitabusf1.data
 
-import kotlin.math.ceil
 import androidx.compose.runtime.mutableStateListOf
-
-data class Book(
-    val id: Int,
-    val title: String,
-    val author: String,
-    val category: String,
-    val isAvailable: Boolean = true
-)
-
-enum class BookingStatus { PENDING, ACTIVE, RETURNED }
-
-data class Booking(
-    val id: Int,
-    val book: Book,
-    val userName: String,
-    val bookingDate: Long,
-    val returnDeadline: Long,
-    val status: BookingStatus
-)
-
-private const val DAY_MS = 24 * 60 * 60 * 1000L
-private const val RENEW_DAYS = 7 //renewal days is 7
-
-fun Book.matchesSearch(query: String): Boolean {
-    val q = query.trim()
-    return q.isEmpty() ||
-        title.contains(q, ignoreCase = true) ||
-        author.contains(q, ignoreCase = true)
-}
-
-fun Booking.isOverdue(now: Long = System.currentTimeMillis()): Boolean = returnDeadline < now
-
-fun Booking.daysRemaining(now: Long = System.currentTimeMillis()): Int =
-    ceil((returnDeadline - now).toDouble() / DAY_MS).toInt()
+import com.example.kitabusf1.domain.Book
+import com.example.kitabusf1.domain.Booking
+import com.example.kitabusf1.domain.BookingStatus
+import com.example.kitabusf1.domain.DAY_MS
+import com.example.kitabusf1.domain.RENEW_DAYS
 
 object PlaceholderData {
 

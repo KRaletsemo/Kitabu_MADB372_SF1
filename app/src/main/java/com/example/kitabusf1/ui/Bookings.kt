@@ -36,10 +36,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.kitabusf1.data.Booking
-import com.example.kitabusf1.data.BookingStatus
+import com.example.kitabusf1.domain.Booking
+import com.example.kitabusf1.domain.BookingStatus
 import com.example.kitabusf1.data.PlaceholderData
-import com.example.kitabusf1.data.isOverdue
+import com.example.kitabusf1.domain.isOverdue
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date

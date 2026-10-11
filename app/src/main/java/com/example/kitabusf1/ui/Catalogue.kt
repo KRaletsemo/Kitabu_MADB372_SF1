@@ -38,9 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.example.kitabusf1.data.Book
+import com.example.kitabusf1.domain.Book
 import com.example.kitabusf1.data.PlaceholderData
-import com.example.kitabusf1.data.matchesSearch
+import com.example.kitabusf1.domain.matchesSearch
 import kotlinx.coroutines.launch
 
 private val RENTAL_OPTIONS = listOf(7, 14, 21)

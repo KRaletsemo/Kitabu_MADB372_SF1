@@ -3,7 +3,7 @@ package com.example.kitabusf1.data.local
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.kitabusf1.data.BookingStatus
+import com.example.kitabusf1.domain.BookingStatus
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
