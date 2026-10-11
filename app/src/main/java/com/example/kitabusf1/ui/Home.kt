@@ -30,20 +30,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.kitabusf1.di.AppViewModelProvider
 import com.example.kitabusf1.domain.Booking
-import com.example.kitabusf1.domain.BookingStatus
-import com.example.kitabusf1.data.PlaceholderData
 import com.example.kitabusf1.domain.isOverdue
-import com.example.kitabusf1.domain.matchesSearch
-
-private const val CATALOGUE_PREVIEW_SIZE = 6
 
 private val fullWidth: LazyGridItemSpanScope.() -> GridItemSpan = { GridItemSpan(maxLineSpan) }
 
@@ -52,18 +47,13 @@ private val fullWidth: LazyGridItemSpanScope.() -> GridItemSpan = { GridItemSpan
 fun HomeScreen(
     onSeeAllBookings: () -> Unit,
     onSeeAllCatalogue: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    var query by rememberSaveable { mutableStateOf("") }
-
-    //Data will be hard coded and use as placeholders till actual database is made 
-    val dueSoon = PlaceholderData.bookings
-        .filter { it.status == BookingStatus.ACTIVE && it.book.matchesSearch(query) }
-        .sortedBy { it.returnDeadline }
-
-    val cataloguePreview = PlaceholderData.books
-        .filter { it.matchesSearch(query) }
-        .take(CATALOGUE_PREVIEW_SIZE)
+    val query = viewModel.query
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val dueSoon = uiState.dueSoon
+    val cataloguePreview = uiState.cataloguePreview
 
     Column(modifier = modifier.fillMaxSize()) {
         TopAppBar(
@@ -84,7 +74,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item(span = fullWidth) {
-                SearchField(query = query, onQueryChange = { query = it })
+                SearchField(query = query, onQueryChange = viewModel::onQueryChange)
             }
 
             item(span = fullWidth) {
@@ -92,7 +82,7 @@ fun HomeScreen(
             }
             item(span = fullWidth) {
                 if (dueSoon.isEmpty()) {
-                    EmptyMessage("Nothing due soon")
+                    if (!uiState.isLoading) EmptyMessage("Nothing due soon")
                 } else {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(dueSoon, key = { it.id }) { booking ->
@@ -106,7 +96,9 @@ fun HomeScreen(
                 SectionHeader(title = "Browse catalogue", onSeeAll = onSeeAllCatalogue)
             }
             if (cataloguePreview.isEmpty()) {
-                item(span = fullWidth) { EmptyMessage("No books match your search") }
+                if (!uiState.isLoading) {
+                    item(span = fullWidth) { EmptyMessage("No books match your search") }
+                }
             } else {
                 items(cataloguePreview, key = { it.id }) { book ->
                     BookCard(book)

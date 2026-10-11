@@ -52,7 +52,7 @@ fun CatalogueScreen(
     modifier: Modifier = Modifier,
     viewModel: CatalogueViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val query by viewModel.query.collectAsStateWithLifecycle()
+    val query = viewModel.query
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val books = uiState.books
 

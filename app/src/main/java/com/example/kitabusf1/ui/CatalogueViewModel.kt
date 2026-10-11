@@ -1,15 +1,17 @@
 package com.example.kitabusf1.ui
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kitabusf1.data.repository.LibraryRepository
 import com.example.kitabusf1.domain.Book
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -25,11 +27,11 @@ class CatalogueViewModel(
     private val repository: LibraryRepository
 ) : ViewModel() {
 
-    private val _query = MutableStateFlow("")
-    val query: StateFlow<String> = _query.asStateFlow()
+    var query by mutableStateOf("")
+        private set
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val uiState: StateFlow<CatalogueUiState> = _query
+    val uiState: StateFlow<CatalogueUiState> = snapshotFlow { query }
         .flatMapLatest { query -> repository.getBooks(query) } //drops old db query when search text changes and makes a new one
         .map { books -> CatalogueUiState(books = books, isLoading = false) }
         .stateIn(
@@ -42,7 +44,7 @@ class CatalogueViewModel(
     val messages = _messages.receiveAsFlow()
 
     fun onQueryChange(newQuery: String) {
-        _query.value = newQuery
+        query = newQuery
     }
 
     fun reserveBook(book: Book, days: Int) {
