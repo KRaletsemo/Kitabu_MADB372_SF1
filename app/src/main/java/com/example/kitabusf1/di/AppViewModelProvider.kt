@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.kitabusf1.data.repository.LibraryRepository
+import com.example.kitabusf1.ui.BookingsViewModel
 import com.example.kitabusf1.ui.CatalogueViewModel
 //ViewModel is used to hold the screens data and logic outside the composable
 object AppViewModelProvider {
@@ -12,6 +13,9 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             CatalogueViewModel(libraryRepository())
+        }
+        initializer {
+            BookingsViewModel(libraryRepository())
         }
     }
 }
