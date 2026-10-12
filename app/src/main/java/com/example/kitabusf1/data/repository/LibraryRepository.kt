@@ -8,6 +8,7 @@ import com.example.kitabusf1.domain.Book
 import com.example.kitabusf1.domain.Booking
 import com.example.kitabusf1.domain.DAY_MS
 import com.example.kitabusf1.domain.RENEW_DAYS
+import com.example.kitabusf1.domain.isValidRentalDays
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -28,6 +29,8 @@ class LibraryRepository( //Passes the Dao's, the repo doesn't create them itself
 
     //all functions are "suspend", this means called from a coroutine
     suspend fun reserveBook(bookId: Int, days: Int): Boolean {
+        if (!isValidRentalDays(days)) return false //Guard that runs before anything touches the db
+
         val now = System.currentTimeMillis()
         return bookingDao.reserveBook(
             bookId = bookId,

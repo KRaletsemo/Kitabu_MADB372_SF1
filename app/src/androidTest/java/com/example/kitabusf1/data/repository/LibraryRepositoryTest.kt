@@ -5,10 +5,14 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.kitabusf1.data.local.AppDatabase
 import com.example.kitabusf1.data.local.BookEntity
+import com.example.kitabusf1.domain.DAY_MS
+import com.example.kitabusf1.domain.RENTAL_OPTIONS
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -71,5 +75,33 @@ class LibraryRepositoryTest {
         addBook("Born a Crime")
         assertEquals(2, titlesFor("").size)
         assertEquals(2, titlesFor("   ").size)
+    }
+
+    @Test
+    fun reservationRejectsRentalLengthsThatAreNotOffered() = runBlocking {
+        addBook("Disgrace")
+        val bookId = repository.getBooks().first().first().id
+
+        for (days in listOf(0, -7, 8, 365)) {
+            assertFalse(repository.reserveBook(bookId, days))
+        }
+
+        assertTrue(repository.getBooks().first().first().isAvailable)
+        assertEquals(0, repository.getCurrentBookings().first().size)
+    }
+
+    @Test
+    fun reservationSetsFutureDeadlineForEachOfferedLength() = runBlocking {
+        for (days in RENTAL_OPTIONS) {
+            addBook("Book $days")
+            val bookId = repository.getBooks("Book $days").first().first().id
+            val before = System.currentTimeMillis()
+
+            assertTrue(repository.reserveBook(bookId, days))
+
+            val booking = repository.getCurrentBookings().first().first { it.book.id == bookId }
+            assertTrue(booking.returnDeadline >= before + days * DAY_MS)
+            assertTrue(booking.returnDeadline > booking.bookingDate)
+        }
     }
 }

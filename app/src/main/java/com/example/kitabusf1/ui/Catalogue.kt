@@ -42,8 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kitabusf1.di.AppViewModelProvider
 import com.example.kitabusf1.domain.Book
-
-private val RENTAL_OPTIONS = listOf(7, 14, 21)
+import com.example.kitabusf1.domain.RENTAL_OPTIONS
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
