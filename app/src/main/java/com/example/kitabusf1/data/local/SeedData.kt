@@ -8,16 +8,16 @@ private const val DAY_MS = 24 * 60 * 60 * 1000L
 object SeedData {
 
     val books = listOf(
-        BookEntity(1, "Long Walk to Freedom", "Nelson Mandela", "Biography"),
-        BookEntity(2, "Born a Crime", "Trevor Noah", "Memoir", isAvailable = false),
-        BookEntity(3, "Cry, the Beloved Country", "Alan Paton", "Classic"),
-        BookEntity(4, "Disgrace", "J.M. Coetzee", "Fiction", isAvailable = false),
-        BookEntity(5, "The Promise", "Damon Galgut", "Fiction", isAvailable = false),
-        BookEntity(6, "Things Fall Apart", "Chinua Achebe", "Classic"),
-        BookEntity(7, "Nervous Conditions", "Tsitsi Dangarembga", "Fiction"),
-        BookEntity(8, "Welcome to Our Hillbrow", "Phaswane Mpe", "Fiction", isAvailable = false),
-        BookEntity(9, "July's People", "Nadine Gordimer", "Fiction"),
-        BookEntity(10, "Half of a Yellow Sun", "Chimamanda Ngozi Adichie", "Historical")
+        BookEntity(1, "The Role of a Great Game Designer", "Richard Carrillo", "Game Design"),
+        BookEntity(2, "Narrative Design for Indies: Getting Started", "Edwin McRae", "Game Design", isAvailable = false),
+        BookEntity(3, "Game Anim: Video Game Animation Explained", "Jonathan Cooper", "3D Animation"),
+        BookEntity(4, "Technical Animation in Video Games", "Matthew Lake", "3D Animation", isAvailable = false),
+        BookEntity(5, "Race Car Vehicle Dynamics", "William F. Milliken & Douglas L. Milliken", "Motorsport Engineering", isAvailable = false),
+        BookEntity(6, "Competition Car Aerodynamics", "Simon McBeath", "Motorsport Engineering"),
+        BookEntity(7, "Cybersecurity 101: A Dummy's Guide for Beginners", "L.D. Knowings", "Cyber Security"),
+        BookEntity(8, "Cybersecurity for Beginners", "Raef Meeuwisse", "Cyber Security", isAvailable = false),
+        BookEntity(9, "Software Engineering", "University of Cape Town", "Software Engineering"),
+        BookEntity(10, "Software Engineering", "Tutorialspoint", "Software Engineering")
     )
 
 
