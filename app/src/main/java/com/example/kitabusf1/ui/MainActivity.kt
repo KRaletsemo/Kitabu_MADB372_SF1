@@ -1,10 +1,9 @@
-package com.example.kitabusf1
+package com.example.kitabusf1.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.kitabusf1.ui.KitabuApp
 import com.example.kitabusf1.ui.theme.KitabuSF1Theme
 
 class MainActivity : ComponentActivity() {
