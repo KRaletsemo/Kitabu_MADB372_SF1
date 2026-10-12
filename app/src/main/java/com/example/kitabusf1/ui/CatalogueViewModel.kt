@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kitabusf1.data.repository.LibraryRepository
 import com.example.kitabusf1.domain.Book
+import com.example.kitabusf1.domain.sanitiseSearchText
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
@@ -43,8 +44,9 @@ class CatalogueViewModel(
     private val _messages = Channel<String>(Channel.BUFFERED)
     val messages = _messages.receiveAsFlow()
 
+    //Runs before text iss stored so it cant have more than 50 char's
     fun onQueryChange(newQuery: String) {
-        query = newQuery
+        query = sanitiseSearchText(newQuery)
     }
 
     fun reserveBook(book: Book, days: Int) {
