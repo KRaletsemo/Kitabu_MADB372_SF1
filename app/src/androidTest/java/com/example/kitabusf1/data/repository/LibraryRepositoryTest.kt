@@ -38,7 +38,7 @@ class LibraryRepositoryTest {
     }
 
     private suspend fun addBook(title: String, author: String = "Author") {
-        db.bookDao().insertBook(BookEntity(title = title, author = author, category = "Fiction"))
+        db.bookDao().insertBook(BookEntity(title = title, author = author, category = "Motorsport Engineering"))
     }
 
     private suspend fun titlesFor(query: String): List<String> =
@@ -46,40 +46,40 @@ class LibraryRepositoryTest {
 
     @Test
     fun searchIgnoresSpacesAroundTheText() = runBlocking {
-        addBook("Disgrace")
-        addBook("Born a Crime")
-        assertEquals(listOf("Disgrace"), titlesFor("  disgrace  "))
+        addBook("Race Car Vehicle Dynamics")
+        addBook("Cybersecurity for Beginners")
+        assertEquals(listOf("Race Car Vehicle Dynamics"), titlesFor("  race car vehicle dynamics  "))
     }
 
     @Test
     fun percentAndUnderscoreAreNotWildcards() = runBlocking {
-        addBook("Disgrace")
-        addBook("Born a Crime")
+        addBook("Race Car Vehicle Dynamics")
+        addBook("Cybersecurity for Beginners")
         assertEquals(emptyList<String>(), titlesFor("%"))
         assertEquals(emptyList<String>(), titlesFor("_"))
-        assertEquals(emptyList<String>(), titlesFor("D_sgrace"))
+        assertEquals(emptyList<String>(), titlesFor("R_ce Car Vehicle Dynamics"))
     }
 
     @Test
     fun percentAndUnderscoreCanStillBeSearchedFor() = runBlocking {
-        addBook("100% Wolf")
+        addBook("100% Secure")
         addBook("snake_case")
-        addBook("Disgrace")
-        assertEquals(listOf("100% Wolf"), titlesFor("0%"))
+        addBook("Race Car Vehicle Dynamics")
+        assertEquals(listOf("100% Secure"), titlesFor("0%"))
         assertEquals(listOf("snake_case"), titlesFor("e_c"))
     }
 
     @Test
     fun emptySearchReturnsEveryBook() = runBlocking {
-        addBook("Disgrace")
-        addBook("Born a Crime")
+        addBook("Race Car Vehicle Dynamics")
+        addBook("Cybersecurity for Beginners")
         assertEquals(2, titlesFor("").size)
         assertEquals(2, titlesFor("   ").size)
     }
 
     @Test
     fun reservationRejectsRentalLengthsThatAreNotOffered() = runBlocking {
-        addBook("Disgrace")
+        addBook("Race Car Vehicle Dynamics")
         val bookId = repository.getBooks().first().first().id
 
         for (days in listOf(0, -7, 8, 365)) {
