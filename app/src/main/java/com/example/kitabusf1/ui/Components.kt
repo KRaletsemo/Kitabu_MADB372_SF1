@@ -1,9 +1,12 @@
 package com.example.kitabusf1.ui
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,8 +25,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.kitabusf1.R
 import com.example.kitabusf1.domain.Book
 import com.example.kitabusf1.ui.theme.AvailableGreen
 import com.example.kitabusf1.ui.theme.BorrowedOrange
@@ -59,19 +65,32 @@ fun SearchField(
 
 @Composable
 fun BookCard(book: Book, modifier: Modifier = Modifier) {
+    val icon = categoryIcon(book.category)
+
     Card(modifier = modifier.fillMaxWidth()) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(120.dp)
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .background(if (icon != null) Color.White else MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = book.title.first().uppercase(),
-                style = MaterialTheme.typography.displayMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
+            if (icon != null) {
+                Image(
+                    painter = painterResource(icon),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                Text(
+                    text = book.title.first().uppercase(),
+                    style = MaterialTheme.typography.displayMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
             AvailabilityBadge(
                 isAvailable = book.isAvailable,
                 modifier = Modifier
@@ -97,6 +116,16 @@ fun BookCard(book: Book, modifier: Modifier = Modifier) {
             CategoryTag(book.category)
         }
     }
+}
+
+@DrawableRes
+private fun categoryIcon(category: String): Int? = when (category) {
+    "Game Design" -> R.drawable.icon_game_design
+    "3D Animation" -> R.drawable.icon_animation
+    "Motorsport Engineering" -> R.drawable.icon_motorsport
+    "Cyber Security" -> R.drawable.icon_cyber_security
+    "Software Engineering" -> R.drawable.icon_software_engineering
+    else -> null
 }
 
 @Composable

@@ -41,11 +41,11 @@ class LibraryDaoTest {
     }
 
     private suspend fun addBook(title: String, author: String = "Author"): Int =
-        bookDao.insertBook(BookEntity(title = title, author = author, category = "Fiction")).toInt()
+        bookDao.insertBook(BookEntity(title = title, author = author, category = "Motorsport Engineering")).toInt()
 
     @Test
     fun insertedBookIsAvailableByDefault() = runBlocking {
-        addBook("Disgrace")
+        addBook("Race Car Vehicle Dynamics")
         val books = bookDao.getAllBooks().first()
         assertEquals(1, books.size)
         assertTrue(books.first().isAvailable)
@@ -55,29 +55,29 @@ class LibraryDaoTest {
 
     @Test
     fun searchMatchesTitleOrAuthorIgnoringCase() = runBlocking {
-        addBook("Born a Crime", "Trevor Noah")
-        addBook("Disgrace", "J.M. Coetzee")
-        assertEquals(1, bookDao.searchBooks("noah").first().size)
-        assertEquals(1, bookDao.searchBooks("DISG").first().size)
+        addBook("Cybersecurity for Beginners", "Raef Meeuwisse")
+        addBook("Race Car Vehicle Dynamics", "William F. Milliken")
+        assertEquals(1, bookDao.searchBooks("meeuwisse").first().size)
+        assertEquals(1, bookDao.searchBooks("RACE").first().size)
         assertEquals(2, bookDao.searchBooks("").first().size)
         assertEquals(0, bookDao.searchBooks("xyz").first().size)
     }
 
     @Test
     fun reserveMakesBookUnavailableAndAddsPendingBooking() = runBlocking {
-        val id = addBook("Disgrace")
+        val id = addBook("Race Car Vehicle Dynamics")
         assertTrue(bookingDao.reserveBook(id, "Student", 0L, 14 * day))
 
         assertEquals(0, bookDao.getBooksByAvailability(true).first().size)
         val current = bookingDao.getCurrentBookings().first()
         assertEquals(1, current.size)
         assertEquals(BookingStatus.PENDING, current.first().booking.status)
-        assertEquals("Disgrace", current.first().book.title)
+        assertEquals("Race Car Vehicle Dynamics", current.first().book.title)
     }
 
     @Test
     fun cannotReserveSameBookTwice() = runBlocking {
-        val id = addBook("Disgrace")
+        val id = addBook("Race Car Vehicle Dynamics")
         assertTrue(bookingDao.reserveBook(id, "Student", 0L, day))
         assertFalse(bookingDao.reserveBook(id, "Student", 0L, day))
         assertEquals(1, bookingDao.getCurrentBookings().first().size)
@@ -85,7 +85,7 @@ class LibraryDaoTest {
 
     @Test
     fun collectThenRenewThenReturn() = runBlocking {
-        val id = addBook("Disgrace")
+        val id = addBook("Race Car Vehicle Dynamics")
         bookingDao.reserveBook(id, "Student", 0L, 14 * day)
         val bookingId = bookingDao.getCurrentBookings().first().first().booking.bookingId
 
@@ -104,7 +104,7 @@ class LibraryDaoTest {
 
     @Test
     fun cancelDeletesPendingBookingAndFreesBook() = runBlocking {
-        val id = addBook("Disgrace")
+        val id = addBook("Race Car Vehicle Dynamics")
         bookingDao.reserveBook(id, "Student", 0L, day)
         val bookingId = bookingDao.getCurrentBookings().first().first().booking.bookingId
 
@@ -115,7 +115,7 @@ class LibraryDaoTest {
 
     @Test
     fun cannotCancelActiveBooking() = runBlocking {
-        val id = addBook("Disgrace")
+        val id = addBook("Race Car Vehicle Dynamics")
         bookingDao.reserveBook(id, "Student", 0L, day)
         val bookingId = bookingDao.getCurrentBookings().first().first().booking.bookingId
         bookingDao.collectBooking(bookingId)
@@ -142,6 +142,6 @@ class LibraryDaoTest {
 
         val current = bookingDao.getCurrentBookings().first()
         assertEquals(4, current.size)
-        assertEquals("Disgrace", current.first().book.title)
+        assertEquals("Technical Animation in Video Games", current.first().book.title)
     }
 }
