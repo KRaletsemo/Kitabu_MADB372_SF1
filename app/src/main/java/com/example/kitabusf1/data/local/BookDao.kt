@@ -20,9 +20,11 @@ interface BookDao {
     @Query("SELECT * FROM books WHERE isAvailable = :isAvailable ORDER BY bookId")
     fun getBooksByAvailability(isAvailable: Boolean): Flow<List<BookEntity>> // Function to get all books by availability
 
+    //Helps tell SQL which char is an escape character
     @Query(
         "SELECT * FROM books " +
-                "WHERE title LIKE '%' || :query || '%' OR author LIKE '%' || :query || '%' " +
+                "WHERE title LIKE '%' || :query || '%' ESCAPE '\\' " +
+                "OR author LIKE '%' || :query || '%' ESCAPE '\\' " +
                 "ORDER BY bookId"
     )
     fun searchBooks(query: String): Flow<List<BookEntity>> //Function to search books
