@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kitabusf1.data.repository.LibraryRepository
 import com.example.kitabusf1.domain.Book
+import com.example.kitabusf1.domain.sanitiseSearchText
 import com.example.kitabusf1.domain.Booking
 import com.example.kitabusf1.domain.BookingStatus
 import com.example.kitabusf1.domain.matchesSearch
@@ -53,8 +54,8 @@ class HomeViewModel(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = HomeUiState()
     )
-
+    //Runs before text iss stored so it cant have more than 50 char's
     fun onQueryChange(newQuery: String) {
-        query = newQuery
+        query = sanitiseSearchText(newQuery)
     }
 }

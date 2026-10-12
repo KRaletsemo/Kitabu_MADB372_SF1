@@ -18,9 +18,10 @@ class LibraryRepository( //Passes the Dao's, the repo doesn't create them itself
     private val bookDao: BookDao,
     private val bookingDao: BookingDao
 ) {
-
+//Uses domain as it's a rule about the apps data with no Android code in it
     fun getBooks(query: String = ""): Flow<List<Book>> =
-        bookDao.searchBooks(query.trim()).map { books -> books.map { it.toDomain() } }
+        bookDao.searchBooks(query.trim().escapeLikeWildcards())
+            .map { books -> books.map { it.toDomain() } }
 
     fun getCurrentBookings(): Flow<List<Booking>> =
         bookingDao.getCurrentBookings().map { bookings -> bookings.map { it.toDomain() } }
@@ -66,3 +67,6 @@ private fun BookingWithBook.toDomain() = Booking(
     returnDeadline = booking.returnDeadline,
     status = booking.status
 )
+//makes special characters ordinary
+private fun String.escapeLikeWildcards(): String =
+    replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
